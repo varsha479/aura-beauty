@@ -1,0 +1,96 @@
+.ai-section {
+  background: #111;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px 60px;
+  gap: 80px;
+}
+
+.ai-left {
+  flex: 1;
+}
+
+.ai-tag {
+  color: #d9a483;
+  font-size: 12px;
+  letter-spacing: 2px;
+  margin-bottom: 25px;
+}
+
+.ai-left h2 {
+  font-size: 60px;
+  line-height: 1.2;
+  font-weight: 400;
+  margin-bottom: 25px;
+}
+
+.ai-desc {
+  color: #b5b5b5;
+  line-height: 1.8;
+  margin-bottom: 35px;
+  max-width: 500px;
+}
+
+.ai-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px;
+  border: 1px solid #2d2d2d;
+  border-radius: 18px;
+  margin-bottom: 18px;
+  background: #1b1b1b;
+}
+
+.ai-card span {
+  background: #333;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+
+.ai-card h4 {
+  margin-bottom: 4px;
+}
+
+.ai-card p {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.ai-right {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.ai-right img {
+  width: 350px;
+  border-radius: 30px;
+}
+
+.accuracy-box {
+  position: absolute;
+  bottom: 20px;
+  left: 60px;
+  background: #d9a483;
+  color: black;
+  padding: 22px;
+  border-radius: 18px;
+}
+
+.accuracy-box h3 {
+  font-size: 32px;
+  margin-bottom: 5px;
+}
+
+.accuracy-box p {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
