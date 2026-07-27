@@ -1,4 +1,5 @@
 import "./Hero.css";
+import { Link } from "react-router-dom";
 
 function Hero() {
   return (
@@ -24,13 +25,13 @@ function Hero() {
         </p>
 
         <div className="hero-buttons">
-          <button className="dark-btn">
+          <Link className="dark-btn" to="/collections">
             Explore Collection
-          </button>
+          </Link>
 
-          <button className="light-btn">
+          <Link className="light-btn" to="/studio">
             Try Virtually
-          </button>
+          </Link>
         </div>
       </div>
     </section>

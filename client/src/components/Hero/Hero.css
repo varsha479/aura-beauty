@@ -52,6 +52,9 @@
 }
 
 .dark-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: #111;
   color: white;
   padding: 16px 32px;
@@ -60,6 +63,9 @@
 }
 
 .light-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: 1px solid #ddd;
   padding: 16px 32px;

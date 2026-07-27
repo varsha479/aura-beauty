@@ -1,29 +1,11 @@
 import "./Products.css";
+import { Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
+import { catalogItems } from "../../data/catalog";
 
 function Products() {
-  const products = [
-    {
-      id: 1,
-      name: "Lumiére Foundation",
-      price: "$42",
-      image:
-        "https://images.unsplash.com/photo-1596462502278-27bfdc403348",
-    },
-    {
-      id: 2,
-      name: "Rose Balm",
-      price: "$28",
-      image:
-        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be",
-    },
-    {
-      id: 3,
-      name: "Glow Palette",
-      price: "$36",
-      image:
-        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796",
-    },
-  ];
+  const { addToCart, formatMoney } = useCart();
+  const products = catalogItems.slice(0, 3);
 
   return (
     <section className="products">
@@ -34,16 +16,22 @@ function Products() {
 
       <div className="product-grid">
         {products.map((item) => (
-          <div className="product-card" key={item.id}>
-            <img src={item.image} alt={item.name} />
+          <article className="product-card" key={item.slug}>
+            <Link to={`/product/${item.slug}`} className="product-card-image-link">
+              <img src={item.image} alt={item.name} />
+            </Link>
 
             <div className="product-info">
-              <h3>{item.name}</h3>
-              <p>{item.price}</p>
+              <h3>
+                <Link to={`/product/${item.slug}`}>{item.name}</Link>
+              </h3>
+              <p>{formatMoney(item.priceValue)}</p>
             </div>
 
-            <button>Add to Bag</button>
-          </div>
+            <button type="button" onClick={() => addToCart(item)}>
+              Add to Bag
+            </button>
+          </article>
         ))}
       </div>
     </section>

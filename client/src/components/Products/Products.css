@@ -33,6 +33,10 @@
   box-shadow: 0 8px 20px rgba(0,0,0,0.06);
 }
 
+.product-card-image-link {
+  display: block;
+}
+
 .product-card img {
   width: 100%;
   height: 340px;
@@ -41,6 +45,10 @@
 
 .product-info {
   padding: 25px;
+}
+
+.product-info h3 a {
+  color: inherit;
 }
 
 .product-info h3 {
