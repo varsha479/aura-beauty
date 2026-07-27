@@ -199,6 +199,8 @@ GitHub: https://github.com/varsha479
 
 Email: (varshaarulkannan@gmail.com)
 
+deployment link:https://aurorabeauty-beta.vercel.app/
+
 ---
 
 ## Final Note
