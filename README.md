@@ -2,7 +2,7 @@
 
 A full-stack beauty commerce and virtual try-on experience built with React, Vite, Express, MongoDB, and MediaPipe Face Landmarker.
 
-Live site: [aurorabeauty-beta.vercel.app](https://aurorabeauty-beta.vercel.app/)
+Live site: [aurorabeauty-beta.vercel.app](https://auraa-beauty.vercel.app/)
 
 ## Overview
 
@@ -170,7 +170,7 @@ These routes require authentication.
 
 The repository includes deployment configuration for a split deployment:
 
-Live deployment: [aurorabeauty-beta.vercel.app](https://aurorabeauty-beta.vercel.app/)
+Live deployment: [aurorabeauty-beta.vercel.app](https://auraa-beauty.vercel.app/)
 
 - Netlify builds and hosts the Vite frontend.
 - Render runs the Express backend.
