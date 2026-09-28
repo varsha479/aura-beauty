@@ -2,7 +2,7 @@
 
 A full-stack beauty commerce and virtual try-on experience built with React, Vite, Express, MongoDB, and MediaPipe Face Landmarker.
 
-Live site: [aurorabeauty-beta.vercel.app](https://auraa-beauty.vercel.app/)
+Live site: (https://auraa-beauty.vercel.app/)
 
 ## Overview
 
