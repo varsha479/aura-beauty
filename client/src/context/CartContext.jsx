@@ -3,12 +3,13 @@ import { catalogItems } from "../data/catalog"
 
 const CartContext = createContext(null)
 const CART_STORAGE_KEY = "aura-cart"
-const SHIPPING_FEE = 8
+const SHIPPING_FEE = 650
 
 function formatMoney(value) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
+    maximumFractionDigits: 0,
   }).format(value)
 }
 
@@ -38,6 +39,7 @@ export function CartProvider({ children }) {
       return [
         ...currentItems,
         {
+          ...product,
           slug: product.slug,
           quantity: 1,
         },
@@ -64,7 +66,7 @@ export function CartProvider({ children }) {
 
   const lineItems = cartItems
     .map((item) => {
-      const product = catalogItems.find((catalogItem) => catalogItem.slug === item.slug)
+      const product = catalogItems.find((catalogItem) => catalogItem.slug === item.slug) || item
 
       if (!product) {
         return null

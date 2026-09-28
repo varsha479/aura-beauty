@@ -10,18 +10,29 @@ const FACE_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_lan
 
 const landmarks = { leftCheek: 234, rightCheek: 454, forehead: 10, chin: 152, leftJaw: 172, rightJaw: 397, upperLip: 13, lowerLip: 14 }
 const lipShades = [
-  { name: "Petal", hex: "#b85f67" },
-  { name: "Rosewood", hex: "#8f3f4a" },
-  { name: "Cassis", hex: "#642c3d" },
-  { name: "Terracotta", hex: "#b45d43" },
-  { name: "Nude", hex: "#a87867" },
+  { name: "Beige Avenue", hex: "#b85b43" },
+  { name: "Needful", hex: "#ad4935" },
+  { name: "Active Lady", hex: "#a44232" },
+  { name: "Peach Tease", hex: "#bf5e4b" },
+  { name: "Live A Little", hex: "#8f2d20" },
+  { name: "Cutesicle", hex: "#e76073" },
+  { name: "Blossom Day", hex: "#d9435d" },
+  { name: "Pinkalicious", hex: "#c93350" },
+  { name: "Carrot Pink", hex: "#d63d43" },
+  { name: "Fairy Cake", hex: "#a72d48" },
+  { name: "Immanence", hex: "#8e211c" },
+  { name: "Macaron Red", hex: "#b8291e" },
 ]
 const eyeShades = [
-  { name: "Champagne", hex: "#c99f78" },
-  { name: "Bronze", hex: "#8c5a43" },
-  { name: "Plum", hex: "#69404d" },
-  { name: "Moss", hex: "#687052" },
-  { name: "Smoke", hex: "#51494b" },
+  { name: "Copper Spark", hex: "#9d3128" },
+  { name: "Rose Satin", hex: "#b76d6d" },
+  { name: "Pearl Rose", hex: "#d8aaa5" },
+  { name: "Ruby Rose", hex: "#b83e43" },
+  { name: "Berry Shimmer", hex: "#ab4652" },
+  { name: "Brick Rose", hex: "#99534e" },
+  { name: "Deep Berry", hex: "#6f2f36" },
+  { name: "Copper Rose", hex: "#b86050" },
+  { name: "Red Velvet", hex: "#a92f2b" },
 ]
 
 function point(face, index, width, height) {
@@ -96,35 +107,52 @@ function drawOverlay(context, face, width, height, makeup) {
   context.fillStyle = cheekGradient(cheekRight)
   context.fillRect(cheekRight.x - width * 0.16, cheekRight.y - height * 0.12, width * 0.32, height * 0.24)
 
-  const eyeMask = (upperLid, eyeOpening, center) => {
-    context.save()
-    clipPath(context, face, upperLid, width, height)
-    const gradient = context.createRadialGradient(center.x, center.y, 0, center.x, center.y, width * 0.11)
-    gradient.addColorStop(0, `${makeup.eyeShade}${Math.round(makeup.eyeOpacity * 150).toString(16).padStart(2, "0")}`)
-    gradient.addColorStop(0.62, `${makeup.eyeShade}${Math.round(makeup.eyeOpacity * 75).toString(16).padStart(2, "0")}`)
-    gradient.addColorStop(1, `${makeup.eyeShade}00`)
-    context.fillStyle = gradient
-    context.fillRect(0, 0, width, height)
-    context.globalCompositeOperation = "destination-out"
-    fillPath(context, face, eyeOpening, width, height)
-    context.restore()
+  const eyeMask = (upperLid, center) => {
+    const paint = (blendMode, opacity) => {
+      context.save()
+      clipPath(context, face, upperLid, width, height)
+      context.globalCompositeOperation = blendMode
+      context.globalAlpha = makeup.eyeOpacity * opacity
+      context.filter = `blur(${Math.max(1, width * 0.003)}px)`
+      const gradient = context.createRadialGradient(center.x, center.y, 0, center.x, center.y, width * 0.13)
+      gradient.addColorStop(0, makeup.eyeShade)
+      gradient.addColorStop(0.55, makeup.eyeShade)
+      gradient.addColorStop(1, `${makeup.eyeShade}00`)
+      context.fillStyle = gradient
+      context.fillRect(0, 0, width, height)
+      context.restore()
+    }
+    paint("multiply", 0.42)
+    paint("soft-light", 0.22)
   }
   eyeMask(
-    [33, 246, 161, 160, 159, 158, 157, 173, 133, 130, 247, 30, 29, 27, 28, 56, 190],
-    [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
+    [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7],
     point(face, 159, width, height),
   )
   eyeMask(
-    [263, 466, 388, 387, 386, 385, 384, 398, 362, 359, 467, 260, 259, 257, 258, 286, 414],
-    [263, 249, 390, 373, 374, 380, 381, 382, 384, 385, 386, 387, 388, 466],
+    [263, 466, 388, 387, 386, 385, 384, 398, 362, 382, 381, 380, 374, 373, 390, 249],
     point(face, 386, width, height),
   )
 
-  context.fillStyle = makeup.lipShade
-  context.globalAlpha = makeup.lipOpacity
-  fillPath(context, face, [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 308, 415, 310, 311, 312, 13, 82, 81, 80, 191, 78], width, height)
-  fillPath(context, face, [291, 375, 321, 405, 314, 17, 84, 181, 91, 146, 61, 78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308], width, height)
-  context.globalAlpha = 1
+  const lipPaths = [
+    [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 308, 415, 310, 311, 312, 13, 82, 81, 80, 191, 78],
+    [291, 375, 321, 405, 314, 17, 84, 181, 91, 146, 61, 78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308],
+  ]
+  const lipCenter = point(face, landmarks.upperLip, width, height)
+  lipPaths.forEach((path) => {
+    context.save()
+    context.globalCompositeOperation = "multiply"
+    context.globalAlpha = makeup.lipOpacity * 0.72
+    context.filter = `blur(${Math.max(1, width * 0.0025)}px)`
+    clipPath(context, face, path, width, height)
+    const gradient = context.createRadialGradient(lipCenter.x, lipCenter.y, 0, lipCenter.x, lipCenter.y, width * 0.16)
+    gradient.addColorStop(0, makeup.lipShade)
+    gradient.addColorStop(0.72, makeup.lipShade)
+    gradient.addColorStop(1, `${makeup.lipShade}00`)
+    context.fillStyle = gradient
+    context.fillRect(0, 0, width, height)
+    context.restore()
+  })
 }
 
 function findProduct(slug) {
