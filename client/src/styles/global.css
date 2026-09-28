@@ -105,6 +105,95 @@ select {
   margin-top: 4px;
 }
 
+.collections-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 220px auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.collection-search,
+.collection-sort {
+  display: grid;
+  gap: 7px;
+  color: #9c8d7d;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.collection-search input,
+.collection-sort select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #d8cbbb;
+  border-radius: 2px;
+  padding: 10px 12px;
+  background: rgba(255, 251, 246, 0.86);
+  color: #111;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.collection-count {
+  color: #756b60;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.collections-status {
+  color: #a4473e;
+  font-size: 13px;
+}
+
+.collections-empty {
+  color: #756b60;
+  font-size: 14px;
+}
+
+.collections-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px solid #e4d8ca;
+}
+
+.collections-pagination button {
+  border-bottom: 1px solid #111;
+  padding: 4px 0;
+  background: transparent;
+  color: #111;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.collections-pagination button:disabled {
+  border-color: #cfc3b7;
+  color: #b3a79a;
+  cursor: not-allowed;
+}
+
+.collections-pagination label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #756b60;
+  font-size: 12px;
+}
+
+.collections-pagination input {
+  width: 48px;
+  border: 1px solid #d8cbbb;
+  padding: 6px;
+  background: #fffaf4;
+  color: #111;
+  text-align: center;
+}
+
 .filter-chip {
   border: 1px solid #d8cbbb;
   background: rgba(255, 251, 246, 0.86);
@@ -131,6 +220,7 @@ select {
 .collection-card {
   display: grid;
   gap: 10px;
+  min-width: 0;
   color: inherit;
 }
 
@@ -179,6 +269,10 @@ select {
   margin-bottom: 4px;
 }
 
+.collection-card-copy h2 {
+  min-height: 38px;
+}
+
 .collection-card-copy p,
 .journal-card p,
 .related-card p {
@@ -196,9 +290,27 @@ select {
   font-size: 12px;
 }
 
+.collection-card-meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .collection-card-actions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
   justify-content: flex-start;
+}
+
+.try-on-link {
+  color: #8f5545;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 3px;
 }
 
 .add-to-bag-button,
@@ -246,6 +358,13 @@ select {
   gap: 18px;
 }
 
+.product-description {
+  max-width: 620px;
+  color: #6d6258;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
 .product-price {
   font-size: 24px;
   letter-spacing: 1px;
@@ -277,7 +396,7 @@ select {
 
 .related-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -285,6 +404,11 @@ select {
   display: grid;
   gap: 10px;
   animation: floatDown 6s ease-in-out infinite;
+}
+
+.related-card-link {
+  display: grid;
+  gap: 10px;
 }
 
 .related-card:nth-child(2) {
@@ -300,6 +424,17 @@ select {
   aspect-ratio: 0.92;
   object-fit: cover;
   border-radius: 20px;
+}
+
+.related-card-button {
+  width: fit-content;
+  border-bottom: 1px solid #111;
+  padding: 3px 0;
+  background: transparent;
+  color: #111;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
 .journal-grid {
@@ -654,6 +789,14 @@ select {
 }
 
 @media (max-width: 1100px) {
+  .collections-toolbar {
+    grid-template-columns: minmax(0, 1fr) 180px;
+  }
+
+  .collection-count {
+    grid-column: 1 / -1;
+  }
+
   .collections-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -704,6 +847,14 @@ select {
 
   .collections-grid {
     grid-template-columns: 1fr;
+  }
+
+  .collections-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .collection-count {
+    grid-column: auto;
   }
 
   .section-title {
