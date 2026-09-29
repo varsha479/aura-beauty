@@ -34,6 +34,12 @@ const eyeShades = [
   { name: "Copper Rose", hex: "#b86050" },
   { name: "Red Velvet", hex: "#a92f2b" },
 ]
+const cheekShades = [
+  { name: "Soft Sand", hex: "#c98f78" },
+  { name: "Apricot Veil", hex: "#d98b78" },
+  { name: "Muted Rose", hex: "#c87578" },
+  { name: "Warm Petal", hex: "#b96762" },
+]
 
 function point(face, index, width, height) {
   const landmark = face[index]
@@ -90,48 +96,97 @@ function clipPath(context, face, indices, width, height) {
   context.clip()
 }
 
+function smoothPath(context, points) {
+  context.beginPath()
+  const firstMidpoint = {
+    x: (points[points.length - 1].x + points[0].x) / 2,
+    y: (points[points.length - 1].y + points[0].y) / 2,
+  }
+  context.moveTo(firstMidpoint.x, firstMidpoint.y)
+  points.forEach((item, index) => {
+    const next = points[(index + 1) % points.length]
+    const midpoint = { x: (item.x + next.x) / 2, y: (item.y + next.y) / 2 }
+    context.quadraticCurveTo(item.x, item.y, midpoint.x, midpoint.y)
+  })
+  context.closePath()
+}
+
+function clipSmoothPath(context, face, indices, width, height) {
+  smoothPath(context, indices.map((index) => point(face, index, width, height)))
+  context.clip()
+}
+
+function clipSmoothPoints(context, points) {
+  smoothPath(context, points)
+  context.clip()
+}
+
 function drawOverlay(context, face, width, height, makeup) {
   const cheekLeft = point(face, landmarks.leftCheek, width, height)
   const cheekRight = point(face, landmarks.rightCheek, width, height)
+  const nose = point(face, 1, width, height)
   context.clearRect(0, 0, width, height)
   const cheekGradient = (center) => {
-    const gradient = context.createRadialGradient(center.x, center.y, 0, center.x, center.y, width * 0.14)
-    gradient.addColorStop(0, `rgba(231, 126, 128, ${makeup.cheekOpacity * 0.22})`)
-    gradient.addColorStop(0.4, `rgba(231, 126, 128, ${makeup.cheekOpacity * 0.12})`)
-    gradient.addColorStop(0.78, `rgba(231, 126, 128, ${makeup.cheekOpacity * 0.035})`)
-    gradient.addColorStop(1, "rgba(231, 126, 128, 0)")
+    const gradient = context.createRadialGradient(center.x, center.y, 0, center.x, center.y, width * 0.105)
+    gradient.addColorStop(0, makeup.cheekShade)
+    gradient.addColorStop(0.3, `${makeup.cheekShade}cc`)
+    gradient.addColorStop(0.68, `${makeup.cheekShade}45`)
+    gradient.addColorStop(1, `${makeup.cheekShade}00`)
     return gradient
   }
-  context.fillStyle = cheekGradient(cheekLeft)
-  context.fillRect(cheekLeft.x - width * 0.16, cheekLeft.y - height * 0.12, width * 0.32, height * 0.24)
-  context.fillStyle = cheekGradient(cheekRight)
-  context.fillRect(cheekRight.x - width * 0.16, cheekRight.y - height * 0.12, width * 0.32, height * 0.24)
+  ;[cheekLeft, cheekRight].forEach((cheek) => {
+    const center = {
+      x: cheek.x + (nose.x - cheek.x) * 0.32,
+      y: cheek.y + (nose.y - cheek.y) * 0.12 - height * 0.02,
+    }
+    context.save()
+    context.globalCompositeOperation = "soft-light"
+    context.globalAlpha = makeup.cheekOpacity * 0.9
+    context.filter = `blur(${Math.max(3, width * 0.012)}px)`
+    context.fillStyle = cheekGradient(center)
+    context.fillRect(center.x - width * 0.12, center.y - height * 0.1, width * 0.24, height * 0.2)
+    context.restore()
+  })
 
-  const eyeMask = (upperLid, center) => {
+  const eyeMask = (upperLid, brow, centerIndex) => {
+    const lidPoints = upperLid.map((index) => point(face, index, width, height))
+    const browPoints = brow.map((index) => point(face, index, width, height))
+    const lidCenter = lidPoints.reduce((sum, item) => ({ x: sum.x + item.x, y: sum.y + item.y }), { x: 0, y: 0 })
+    const browCenter = browPoints.reduce((sum, item) => ({ x: sum.x + item.x, y: sum.y + item.y }), { x: 0, y: 0 })
+    lidCenter.x /= lidPoints.length
+    lidCenter.y /= lidPoints.length
+    browCenter.x /= browPoints.length
+    browCenter.y /= browPoints.length
+    const offset = { x: (browCenter.x - lidCenter.x) * 0.42, y: (browCenter.y - lidCenter.y) * 0.42 }
+    const shadowPath = [...lidPoints, ...lidPoints.map((item) => ({ x: item.x + offset.x, y: item.y + offset.y })).reverse()]
+    const center = point(face, centerIndex, width, height)
     const paint = (blendMode, opacity) => {
       context.save()
-      clipPath(context, face, upperLid, width, height)
       context.globalCompositeOperation = blendMode
-      context.globalAlpha = makeup.eyeOpacity * opacity
-      context.filter = `blur(${Math.max(1, width * 0.003)}px)`
-      const gradient = context.createRadialGradient(center.x, center.y, 0, center.x, center.y, width * 0.13)
+      context.globalAlpha = makeup.eyeOpacity * opacity * 0.7
+      context.filter = `blur(${Math.max(2, width * 0.005)}px)`
+      const gradient = context.createRadialGradient(center.x, center.y, 0, center.x, center.y + offset.y, width * 0.1)
       gradient.addColorStop(0, makeup.eyeShade)
-      gradient.addColorStop(0.55, makeup.eyeShade)
+      gradient.addColorStop(0.45, makeup.eyeShade)
+      gradient.addColorStop(0.82, `${makeup.eyeShade}55`)
       gradient.addColorStop(1, `${makeup.eyeShade}00`)
       context.fillStyle = gradient
-      context.fillRect(0, 0, width, height)
+      smoothPath(context, shadowPath)
+      context.fill()
       context.restore()
     }
     paint("multiply", 0.42)
     paint("soft-light", 0.22)
   }
   eyeMask(
-    [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7],
-    point(face, 159, width, height),
+    [33, 246, 161, 160, 159, 158, 157, 173, 133],
+    [70, 63, 105, 66, 107],
+    159,
   )
   eyeMask(
-    [263, 466, 388, 387, 386, 385, 384, 398, 362, 382, 381, 380, 374, 373, 390, 249],
-    point(face, 386, width, height),
+    [263, 466, 388, 387, 386, 385, 384, 398, 362],
+    [336, 296, 334, 293, 300],
+    386,
   )
 
   const lipPaths = [
@@ -143,14 +198,15 @@ function drawOverlay(context, face, width, height, makeup) {
     context.save()
     context.globalCompositeOperation = "multiply"
     context.globalAlpha = makeup.lipOpacity * 0.72
-    context.filter = `blur(${Math.max(1, width * 0.0025)}px)`
-    clipPath(context, face, path, width, height)
+    context.filter = `blur(${Math.max(2, width * 0.006)}px)`
     const gradient = context.createRadialGradient(lipCenter.x, lipCenter.y, 0, lipCenter.x, lipCenter.y, width * 0.16)
     gradient.addColorStop(0, makeup.lipShade)
-    gradient.addColorStop(0.72, makeup.lipShade)
+    gradient.addColorStop(0.62, makeup.lipShade)
+    gradient.addColorStop(0.9, `${makeup.lipShade}55`)
     gradient.addColorStop(1, `${makeup.lipShade}00`)
     context.fillStyle = gradient
-    context.fillRect(0, 0, width, height)
+    smoothPath(context, path.map((index) => point(face, index, width, height)))
+    context.fill()
     context.restore()
   })
 }
@@ -176,11 +232,12 @@ export default function VirtualStudio() {
   const [capturedImage, setCapturedImage] = useState("")
   const [selectedLipShade, setSelectedLipShade] = useState(lipShades[0])
   const [selectedEyeShade, setSelectedEyeShade] = useState(eyeShades[0])
-  const [lipOpacity, setLipOpacity] = useState(0.78)
-  const [cheekOpacity, setCheekOpacity] = useState(0.75)
-  const [eyeOpacity, setEyeOpacity] = useState(0.65)
+  const [selectedCheekShade, setSelectedCheekShade] = useState(cheekShades[0])
+  const [lipOpacity, setLipOpacity] = useState(0.23)
+  const [cheekOpacity, setCheekOpacity] = useState(0.23)
+  const [eyeOpacity, setEyeOpacity] = useState(0.23)
   const selectedLipShadeRef = useRef(lipShades[0])
-  const makeupRef = useRef({ lipShade: lipShades[0].hex, eyeShade: eyeShades[0].hex, lipOpacity: 0.78, cheekOpacity: 0.75, eyeOpacity: 0.65 })
+  const makeupRef = useRef({ lipShade: lipShades[0].hex, eyeShade: eyeShades[0].hex, cheekShade: cheekShades[0].hex, lipOpacity: 0.23, cheekOpacity: 0.23, eyeOpacity: 0.23 })
   const { addToCart } = useCart()
   useRouteMetadata({
     title: "AURA | Virtual Studio",
@@ -308,6 +365,11 @@ export default function VirtualStudio() {
     setSelectedEyeShade(shade)
   }
 
+  const selectCheekShade = (shade) => {
+    makeupRef.current = { ...makeupRef.current, cheekShade: shade.hex }
+    setSelectedCheekShade(shade)
+  }
+
   const updateOpacity = (type, value) => {
     makeupRef.current = { ...makeupRef.current, [type]: Number(value) }
     if (type === "lipOpacity") setLipOpacity(Number(value))
@@ -343,6 +405,7 @@ export default function VirtualStudio() {
       <div className="studio-intro"><div><p className="eyebrow">Virtual Studio · Private by design</p><h1 className="section-title">A closer look at what suits you.</h1></div><p className="soft-copy">Live face mapping suggests tones, textures, and placement from your camera feed. Nothing is uploaded or stored.</p></div>
       <div className="studio-workspace">
         <div className="camera-panel">
+          <div className="makeup-control studio-cheek-palette"><div className="control-heading"><span>Cheek color</span><strong>{selectedCheekShade.name}</strong></div><div className="shade-swatches" role="group" aria-label="Choose a cheek color">{cheekShades.map((shade) => <button className={`shade-swatch ${selectedCheekShade.name === shade.name ? "selected" : ""}`} style={{ backgroundColor: shade.hex }} type="button" key={shade.name} onClick={() => selectCheekShade(shade)} aria-label={`Select ${shade.name} cheek color`} aria-pressed={selectedCheekShade.name === shade.name} />)}</div></div>
           <div className="camera-frame"><video ref={videoRef} autoPlay muted playsInline aria-label="Live virtual try-on camera" /><canvas ref={overlayRef} className="camera-overlay" />{!analysis && <div className="face-guide"><span>Place your face here</span></div>}{capturedImage && <img className="captured-preview" src={capturedImage} alt="Captured virtual studio look" />}<div className="camera-status"><span className="status-dot" />{status}</div></div>
           <div className="camera-actions"><button className="studio-button studio-button-primary" type="button" onClick={captureLook} disabled={!cameraReady}>Capture look</button><button className="studio-button" type="button" onClick={restartStudio}>Restart camera</button></div>
           {error && <p className="studio-error" role="alert">{error}</p>}
